@@ -11,6 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Backend is working 🚀");
+});
 app.use("/users", userRoutes);
 app.use("/problems", problemRoutes);
 app.use("/leetcode", leetcodeRoutes);
