@@ -2,6 +2,7 @@ const { getDB } = require("../config/db");
 
 async function addUser(req, res) {
     const db = getDB();
+    const connection = await db.getConnection();
     const { name, email } = req.body;
 
     if (!name || !email) {
@@ -11,9 +12,9 @@ async function addUser(req, res) {
     }
 
     try {
-        await db.beginTransaction();
+        await connection.beginTransaction();
 
-        const [existingUsers] = await db.query(
+        const [existingUsers] = await connection.query(
             "SELECT id FROM users WHERE email = ?",
             [email]
         );
@@ -23,38 +24,40 @@ async function addUser(req, res) {
         if (existingUsers.length > 0) {
             userId = existingUsers[0].id;
         } else {
-            const [userResult] = await db.query(
+            const [userResult] = await connection.query(
                 "INSERT INTO users (username, email) VALUES (?, ?)",
                 [name, email]
             );
             userId = userResult.insertId;
         }
 
-        const [existingProfile] = await db.query(
+        const [existingProfile] = await connection.query(
             "SELECT id FROM theme_profile WHERE user_id = ?",
             [userId]
         );
 
         if (existingProfile.length === 0) {
-            await db.query(
+            await connection.query(
                 "INSERT INTO theme_profile (user_id, email) VALUES (?, ?)",
                 [userId, email]
             );
         }
 
-        await db.commit();
+        await connection.commit();
 
         return res.status(200).json({
             message: "User ready",
             user_id: userId
         });
     } catch (err) {
-        await db.rollback();
+        await connection.rollback();
         console.error("Error in /add_user:", err);
 
         return res.status(500).json({
             message: "Server error"
         });
+    } finally {
+        connection.release();
     }
 }
 

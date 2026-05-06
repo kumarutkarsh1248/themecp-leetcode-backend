@@ -1,13 +1,13 @@
 const mysql = require("mysql2/promise");
 
-let db;
+let pool;
 
 async function connectDB() {
     console.log("DB_HOST:", process.env.DB_HOST);
     console.log("DB_PORT:", process.env.DB_PORT);
     console.log("DB_USER:", process.env.DB_USER);
     console.log("DB_NAME:", process.env.DB_NAME);
-    db = await mysql.createConnection({
+    pool = await mysql.createPool({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
@@ -19,10 +19,10 @@ async function connectDB() {
 }
 
 function getDB() {
-    if (!db) {
+    if (!pool) {
         throw new Error("Database not connected yet");
     }
-    return db;
+    return pool;
 }
 
 module.exports = { connectDB, getDB };
