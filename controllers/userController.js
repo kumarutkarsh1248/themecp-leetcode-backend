@@ -1,4 +1,5 @@
 const { getDB } = require("../config/db");
+const {doesProfileExist} = require("./utils");
 
 async function addUser(req, res) {
     const db = getDB();
@@ -105,11 +106,20 @@ async function saveProfileName(req, res) {
     if (!email || !user_profile_name) {
         return res.status(400).json({
             message: "Email and profile name are required",
+            state: "not_able_to_save"
         });
     }
-    console.log(email)
 
     try {
+        const profileExists = await doesProfileExist(user_profile_name);
+
+        if (!profileExists) {
+            return res.status(400).json({
+                message: "This user profile is not listed on LeetCode",
+                state: "not_able_to_save"
+            });
+        }
+
         const sql = `
             UPDATE users
             SET leetcode_profile_name = ?
@@ -123,18 +133,22 @@ async function saveProfileName(req, res) {
 
         if (result.affectedRows === 0) {
             return res.status(404).json({
-                message: "User not found"
+                message: "No matching user found OR profile already same",
+                state: "not_able_to_save"
             });
         }
 
         return res.status(200).json({
-            message: "User profile name updated successfully"
+            message: "User profile name updated successfully",
+            state: "saved"
         });
 
     } catch (err) {
         console.error(err);
+
         return res.status(500).json({
-            message: "Internal server error"
+            message: "Internal server error",
+            state: "not_able_to_save"
         });
     }
 }
