@@ -153,6 +153,45 @@ async function saveProfileName(req, res) {
     }
 }
 
+async function getThemeDetail(req, res) {
+    console.log("inside theme detail")
+    const db = getDB();
+    const user_id = req.userId;
+
+    try {
+        const sql = `
+            SELECT *
+            FROM theme_profile
+            WHERE user_id = ?
+        `;
+
+        const [result] = await db.query(sql, [user_id]);
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Theme profile not found",
+                data: null
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Theme profile fetched successfully",
+            data: result[0]
+        });
+
+    } catch (err) {
+        console.error("Error in getThemeDetail:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            data: null
+        });
+    }
+}
+
 // app.delete("/remove_user/:name", async (req, res) => {
 
 //     const sub = req.params.sub;
@@ -174,4 +213,4 @@ async function saveProfileName(req, res) {
 //     }
 // });
 
-module.exports = { addUser, getProfileName, saveProfileName };
+module.exports = { addUser, getProfileName, saveProfileName, getThemeDetail };
