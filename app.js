@@ -12,7 +12,7 @@ app.use(cors({
   origin: [
     "http://localhost:3001",
     "http://localhost:3000",
-    "https://themecp-leetcode-frontend.vercel.app"
+    "https://themecp-leetcode.vercel.app"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
