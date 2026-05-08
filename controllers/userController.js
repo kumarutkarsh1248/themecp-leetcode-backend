@@ -100,6 +100,7 @@ async function getProfileName(req, res) {
 }
 
 async function saveProfileName(req, res) {
+    console.log("inside  save user profile")
     const { email, user_profile_name } = req.body;
     const db = getDB();
 
@@ -112,13 +113,16 @@ async function saveProfileName(req, res) {
 
     try {
         const profileExists = await doesProfileExist(user_profile_name);
+        // console.log("yes the profile name exist")
 
         if (!profileExists) {
+            console.log("profile does not exist")
             return res.status(400).json({
                 message: "This user profile is not listed on LeetCode",
                 state: "not_able_to_save"
             });
         }
+        
 
         const sql = `
             UPDATE users
